@@ -1,0 +1,81 @@
+$typecolornormal: #aa9;
+$typecolorfire: #f42;
+$typecolorwater: #39f;
+$typecolorelectric: #fc3;
+$typecolorgrass: #7c5;
+$typecolorice: #6cf;
+$typecolorfighting: #b54;
+$typecolorpoison: #a59;
+$typecolorground: #db5;
+$typecolorflying: #89f;
+$typecolorpsychic: #f59;
+$typecolorbug: #ab2;
+$typecolorrock: #ba6;
+$typecolorghost: #66b;
+$typecolordragon: #76e;
+$typecolordark: #754;
+$typecolorsteel: #aab;
+$typecolorfairy: #e9e;
+
+.type-color-normal{
+    background-color: $typecolornormal;
+}
+.type-color-fire{
+    background-color: $typecolorfire;
+}
+.type-color-water{
+    background-color: $typecolorwater;
+}
+.type-color-electric{
+    background-color: $typecolorelectric;
+}
+.type-color-grass{
+    background-color: $typecolorgrass;
+}
+.type-color-ice{
+    background-color: $typecolorice;
+}
+.type-color-fighting{
+    background-color: $typecolorfighting;
+}
+.type-color-poison{
+    background-color: $typecolorpoison;
+}
+.type-color-ground{
+    background-color: $typecolorground;
+}
+.type-color-flying{
+    background-color: $typecolorflying;
+}
+.type-color-psychic{
+    background-color: $typecolorpsychic;
+}
+.type-color-bug{
+    background-color: $typecolorbug;
+}
+.type-color-rock{
+    background-color: $typecolorrock;
+}
+.type-color-ghost{
+    background-color: $typecolorghost;
+}
+.type-color-dragon{
+    background-color: $typecolordragon;
+}
+.type-color-dark{
+    background-color: $typecolordark;
+}
+.type-color-steel{
+    background-color: $typecolorsteel;
+}
+.type-color-fairy{
+    background-color: $typecolorfairy;
+}
+
+.img-responsive{
+    width: auto;
+    margin: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+}

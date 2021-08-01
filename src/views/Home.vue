@@ -1,18 +1,76 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+    <v-main class="home" :style="{backgroundImage: 'url('+selectedBG+')'}">
+        <div class="logo">
+            <figure>
+                <img class="img-responsive" alt="Vue logo" src="@/assets/logo.png" />
+            </figure>
+        </div>
+        <ListaPokemons />
+    </v-main>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+    // @ is an alias to /src
+    // import HelloWorld from "@/components/HelloWorld.vue";
+    import ListaPokemons from '@/components/ListaPokemons.vue';
+    import KantoMap from '@/assets/LGPE_Kanto_Map.webp';
+    import JohtoMap from '@/assets/JohtoMap.webp';
+    import HoennMap from '@/assets/Hoenn_ORAS.webp';
+    import SinnohMap from '@/assets/Pt_Sinnoh.webp';
+    import UnovaMap from '@/assets/Unova_B2W2_alt.webp';
+    import KalosMap from '@/assets/Kalos_alt.webp';
+    import AlolaMap from '@/assets/Alola_USUM_artwork.webp';
+    import GalarMap from '@/assets/Galar_artwork.webp';
 
-export default {
-  name: 'Home',
-  components: {
-    HelloWorld
-  }
-}
+    export default {
+        name: 'Home',
+        components: {
+            // HelloWorld,
+            ListaPokemons,
+        },
+        data:() => ({
+            selectedBG: '',
+            bgs: [
+                KantoMap,
+                JohtoMap,
+                HoennMap,
+                SinnohMap,
+                UnovaMap,
+                KalosMap,
+                AlolaMap,
+                GalarMap,
+            ],
+        }),
+        methods:{
+            randomBG(){
+                let idx = Math.floor(Math.random() * this.bgs.length)
+                this.selectedBG = this.bgs[idx]
+                console.log(idx, 'idx')
+                console.log(this.selectedBG, 'selectedBG')
+            }
+        },
+        mounted(){
+            this.randomBG()
+        }
+    };
 </script>
+
+<style lang="scss" scoped>
+    .home{
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        height: 100vh;
+        .logo{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 5px;
+            figure{
+                width: 5%;
+            }
+        }
+    }
+</style>
