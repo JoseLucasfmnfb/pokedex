@@ -69,7 +69,7 @@
     import store from "@/store"
 
     export default {
-        props: ["show", "getter"],
+        props: ["show", "name"],
         name: 'ModalPokemon',
         data:() => ({
             showModal: false,
@@ -80,15 +80,15 @@
                 await this.getPokemonInfo()
             },
             async getPokemonInfo(){
-                console.log(this.getter, 'getter no inicio da funcao')
+                // console.log(this.getter, 'getter no inicio da funcao')
                 this.showModal = await this.show
-                this.dados = this.getter
+                this.dados = store.getters.detailed_pokemon_list(this.name)
                 let elHtml = document.getElementsByTagName('html')[0]
                 if (this.modalAtiva == true) {
                     elHtml.style.overflowY = 'hidden'
                 }
-                console.log(store.getters, 'store.getters ModalPokemon')
-                console.log(this.dados, 'this.dados ModalPokemon')
+                // console.log(store.getters, 'store.getters ModalPokemon')
+                // console.log(this.dados, 'this.dados ModalPokemon')
             },
             async closeInfo(){
                 let elHtml = await document.getElementsByTagName('html')[0]
@@ -136,11 +136,13 @@
                         text-align: center;
                         padding-top: 15px;
                         .div-type{
-                            min-width: 115px;
+                            min-width: 125px;
                             text-transform: uppercase;
                             padding: 8px 20px;
                             margin: 0 10px;
                             border-radius: 5px;
+                            font-size: 16px;
+                            font-weight: 700;
                         }
                     }
                     .ul-pokemon-stats{

@@ -45,8 +45,6 @@
             randomBG(){
                 let idx = Math.floor(Math.random() * this.bgs.length)
                 this.selectedBG = this.bgs[idx]
-                console.log(idx, 'idx')
-                console.log(this.selectedBG, 'selectedBG')
             }
         },
         mounted(){
@@ -60,7 +58,9 @@
         background-position: center;
         background-repeat: no-repeat;
         background-size: cover;
-        height: 100vh;
+        height: auto;
+        min-height: 100vh;
+        padding: 20px 0!important;
         .logo{
             display: flex;
             flex-wrap: wrap;

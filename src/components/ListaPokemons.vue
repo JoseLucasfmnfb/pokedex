@@ -31,29 +31,29 @@
                     class="div-btns-change-view-style"
                 >
                     <div class="wrapper-exibir">
-                        <v-select
-                            :items="['Foo', 'Bar', 'Fizz', 'Buzz']"
-                            label="Fizzbuzz"
+                        <v-menu
+                            bottom
+                            offset-y
                         >
-                            <template v-slot:item="{ item, attrs, on }">
-                                <v-list-item
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn
+                                    class="ma-2"
                                     v-bind="attrs"
                                     v-on="on"
                                 >
-                                    <v-list-item-title
-                                    :id="attrs['aria-labelledby']"
-                                    v-text="item"
-                                    ></v-list-item-title>
-                                </v-list-item>
+                                    {{$store.getters.limit}}
+                                </v-btn>
                             </template>
-                        </v-select>
-                        <v-select
-                            :items="qtdeExibir"
-                            v-model="filtros.limit"
-                            label="Items"
-                            hide-details
-                        >
-                        </v-select>
+                            <v-list>
+                                <v-list-item
+                                    v-for="item in qtdeExibir"
+                                    :key="item.value"
+                                    @click="atualizaLista(item.value)"
+                                >
+                                    <v-list-item-title>{{ item.text }}</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
                     </div>
                     <div class="wrapper-list-style-change">
                         <v-btn @click="liViewType = 'view-grid'">
@@ -72,25 +72,36 @@
             <v-row class="row-lista-pokemons">
                 <v-col md="12" class="div-lista-pokemons">
                     <ul>
-                        <li class="li-pokemon" :class="liViewType" v-for="pokemon in $store.getters.pokemons.results" :key="pokemon.name">
-                            <button @click="getPokemonInfo(pokemon.url)" class="btn-ver-pokemon">
-                                <span>
-                                    {{pokemon.name}}
-                                </span>
-                                <span class="svg-icon">
-                                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
-                                        <path fill="currentColor" d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4C7.92,4 4.55,7.05 4.06,11H8.13C8.57,9.27 10.14,8 12,8C13.86,8 15.43,9.27 15.87,11H19.94C19.45,7.05 16.08,4 12,4M12,20C16.08,20 19.45,16.95 19.94,13H15.87C15.43,14.73 13.86,16 12,16C10.14,16 8.57,14.73 8.13,13H4.06C4.55,16.95 7.92,20 12,20M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10Z" />
-                                    </svg>
-                                </span>
-                            </button>
+                        <li 
+                            :class="'li-pokemon ' + liViewType" 
+                            v-for="pokemon in pokemon_list" 
+                            :key="pokemon.name" 
+                            @click="openModal(pokemon.name)"
+                        >
+                            <CardPokemon
+                                :name="pokemon.name"
+                                :url="pokemon.url"
+                            />
                         </li>
                     </ul>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col
+                    cols="12"
+                >
+                    <v-btn @click="init($store.getters.prev)" :disabled="!Boolean($store.getters.prev)">
+                        Anterior
+                    </v-btn>
+                    <v-btn @click="init($store.getters.next)">
+                        Proximo
+                    </v-btn>
                 </v-col>
             </v-row>
         </v-container>
         <ModalPokemon
             v-if="showModalPokemonInfo"
-            :getter="$store.getters.pokemon_info"
+            :name="pokemonName"
             :show="showModalPokemonInfo"
             @handleClose="()=>{
                 showModalPokemonInfo = false
@@ -102,11 +113,13 @@
 <script>
     import store from "@/store"
     import ModalPokemon from '@/components/ModalPokemon.vue';
+    import CardPokemon from '@/components/CardPokemon.vue';
 
     export default {
         name: "ListaPokemons",
         components: {
             ModalPokemon,
+            CardPokemon,
         },
         data: () => ({
             msg: null,
@@ -117,47 +130,43 @@
             liViewType: 'view-grid',
             pokemonInfo: null,
             showModalPokemonInfo: false,
-            filtros: {
-                limit: 20,
-                offset: 0,
-            },
+            pokemonName: '',
             qtdeExibir: [
                 {
-                    text: '20',
-                    value: 20,
+                    text: '12',
+                    value: 12,
                 },
                 {
-                    text: '50',
-                    value: 50,
+                    text: '24',
+                    value: 24,
                 },
                 {
-                    text: '100',
-                    value: 100,
+                    text: '36',
+                    value: 36,
                 },
             ]
         }),
         methods: {
-            async init() {
-                await this.listaPokemon();
-                // console.log(this.$store.getters.pokemons, 'store.getters.pokemons - init()')
+            async init(url = null) {
+                await store.dispatch('getListaPokemons', url)
+                this.pokemon_list = store.getters.pokemons_list
             },
-            listaPokemon(){
-                store.dispatch('getListaPokemons', this.filtros)
+            async buscaPokemon(){
+                await store.dispatch('setSearch', this.searchValue)
+                this.pokemon_list = await store.getters.pokemons_list
             },
-            buscaPokemon(){
-                store.dispatch('getListaPokemons', this.searchValue)
+            async atualizaLista(limit){
+                // console.log(limit, 'atualiza limite')
+                await store.dispatch('setLimit', limit)
+                this.init()
             },
-            async getPokemonInfo(url){
-                console.log(url, 'getPokemonInfo url');
-                await store.dispatch('getPokemon', url)
-                this.pokemonInfo = await store.getters.pokemon_info
-                // await console.log(this.$store.getters, 'store.getters - getPokemonInfo()')
-                await console.log(this.pokemonInfo, 'this.pokemonInfo - getPokemonInfo()')
-                this.showModalPokemonInfo = await true
+            async openModal(name){
+                this.pokemonName = await name
+                this.showModalPokemonInfo = true
             },
             logStore(){
                 console.log(this.$store.getters, 'this.$store.getters - logStore()')
-            }
+            },
         },
         computed: {},
         mounted() {
@@ -181,6 +190,11 @@
                 justify-content: center;
                 align-items: center;
                 text-align: center;
+                .wrapper-exibir{
+                    .v-menu{
+                        display: block;
+                    }
+                }
             }
         }
         .row-lista-pokemons{
@@ -192,50 +206,20 @@
                     li{
                         padding: 10px;
                         min-width: 270px;
-                        .btn-ver-pokemon{
-                            // border: solid 1px #000;
-                            background-color: #000;
-                            border-radius: 35px;
-                            color: #fff;
-                            padding: 12px 20px;
-                            display: inline-flex;
-                            text-transform: capitalize;
-                            width: 100%;
-                            position: relative;
-                            transition: all ease .3s;
-                            align-items: center;
-                            justify-content: space-between;
-                            font-size: 18px;
-                            font-weight: 700;
-                            span{
-                                z-index: 1;
-                            }
-                            &:before{
-                                content: '';
-                                clip-path: polygon(60% 0, 100% 0%, 100% 100%, 0% 100%);
-                                background-color: #e4700b;
-                                right: -1.5px;
-                                top: -1px;
-                                bottom: -1px;
-                                width: 40%;
-                                display: flex;
-                                position: absolute;
-                                border-radius: 0 35px 35px 0;
-                                transition: all ease .3s;
-                            }
-                            &:hover{
-                                &:before{
-                                    clip-path: polygon(0% 0, 100% 0%, 100% 100%, 0% 100%);
-                                    width: 101%;
-                                    border-radius: 35px;
-                                }
-                            }
-                        }
+                        display: flex;
                         &.view-grid{
                             width: 25%;
                         }
                         &.view-list{
                             width: 100%;
+                            .btn-ver-pokemon{
+                                flex-direction: row;
+                                justify-content: start;
+                                .image{
+                                    width: 20%;
+                                    margin-right: 10px;
+                                }
+                            }
                         }
                     }
                 }
