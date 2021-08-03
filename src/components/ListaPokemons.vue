@@ -4,7 +4,7 @@
             <v-row class="row-busca">
                 <v-col>
                     <v-btn @click="logStore()">
-                        Log Store
+                        Log Store {{page}}
                     </v-btn>
                 </v-col>
                 <v-col
@@ -96,6 +96,12 @@
                     <v-btn @click="init($store.getters.next)">
                         Proximo
                     </v-btn>
+                    <v-pagination
+                        :length="pageTotal"
+                        :total-visible="7"
+                        v-model="page"
+                        @input="handlePageChange"
+                    ></v-pagination>
                 </v-col>
             </v-row>
         </v-container>
@@ -131,6 +137,8 @@
             pokemonInfo: null,
             showModalPokemonInfo: false,
             pokemonName: '',
+            page: 1,
+            qtdePerPage: 12,
             qtdeExibir: [
                 {
                     text: '12',
@@ -144,7 +152,7 @@
                     text: '36',
                     value: 36,
                 },
-            ]
+            ],
         }),
         methods: {
             async init(url = null) {
@@ -164,11 +172,27 @@
                 this.pokemonName = await name
                 this.showModalPokemonInfo = true
             },
+            handlePageChange(){
+                console.log(store.getters.limit, 'handlePageChange')
+                if (this.page == 1) {
+                    store.dispatch('setLimit', store.getters.limit)
+                    store.dispatch('setOffset', 0)
+                }else{
+                    store.dispatch('setLimit', store.getters.limit)
+                    store.dispatch('setOffset', store.getters.limit*(this.page-1))
+                }
+                this.init()
+            },
             logStore(){
                 console.log(this.$store.getters, 'this.$store.getters - logStore()')
             },
         },
-        computed: {},
+        computed: {
+            pageTotal: function () {
+                console.log(store.getters.limit)
+                return Math.round(898/store.getters.limit)
+            }
+        },
         mounted() {
             this.init();
         },

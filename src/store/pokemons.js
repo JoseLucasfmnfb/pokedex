@@ -26,6 +26,9 @@ export default ({
         SET_LIMIT(state, limit){
             state.limit = limit
         },
+        SET_OFFSET(state, offset){
+            state.offset = offset
+        },
         SET_PREV(state, url){
             state.prev = url
         },
@@ -64,6 +67,10 @@ export default ({
         },
         async setLimit({ commit }, limit){
             commit('SET_LIMIT', limit)
+            return true
+        },
+        async setOffset({ commit }, offset){
+            commit('SET_OFFSET', offset)
             return true
         },
         async setSearch({ commit }, search){
