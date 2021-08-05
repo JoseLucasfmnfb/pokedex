@@ -54,6 +54,29 @@
                                 </v-list-item>
                             </v-list>
                         </v-menu>
+                        <v-menu
+                            bottom
+                            offset-y
+                        >
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn
+                                    class="ma-2"
+                                    v-bind="attrs"
+                                    v-on="on"
+                                >
+                                    Ordenacao
+                                </v-btn>
+                            </template>
+                            <v-list>
+                                <v-list-item
+                                    v-for="item in tipoOrdenacao"
+                                    :key="item.value"
+                                    @click="atualizaLista(item.value)"
+                                >
+                                    <v-list-item-title>{{ item.text }}</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
                     </div>
                     <div class="wrapper-list-style-change">
                         <v-btn @click="liViewType = 'view-grid'">
@@ -89,17 +112,14 @@
             <v-row>
                 <v-col
                     cols="12"
+                    class="div-pagination"
                 >
-                    <v-btn @click="init($store.getters.prev)" :disabled="!Boolean($store.getters.prev)">
-                        Anterior
-                    </v-btn>
-                    <v-btn @click="init($store.getters.next)">
-                        Proximo
-                    </v-btn>
                     <v-pagination
                         :length="pageTotal"
                         :total-visible="7"
                         v-model="page"
+                        prev-icon="mdi-menu-left"
+                        next-icon="mdi-menu-right"
                         @input="handlePageChange"
                     ></v-pagination>
                 </v-col>
@@ -153,11 +173,30 @@
                     value: 36,
                 },
             ],
+            tipoOrdenacao: [
+                {
+                    text: 'Numero Asc',
+                    value: 'numeroAsc',
+                },
+                {
+                    text: 'Numero Dec',
+                    value: 'numeroDec',
+                },
+                {
+                    text: 'Alfa Asc',
+                    value: 'alfaAsc',
+                },
+                {
+                    text: 'Alfa Des',
+                    value: 'alfaDes',
+                },
+            ],
         }),
         methods: {
             async init(url = null) {
                 await store.dispatch('getListaPokemons', url)
                 this.pokemon_list = store.getters.pokemons_list
+                console.log(store.getters.pokemons_list ,'asdasdasdawsdasdawewdafrefae')
             },
             async buscaPokemon(){
                 await store.dispatch('setSearch', this.searchValue)
@@ -189,8 +228,9 @@
         },
         computed: {
             pageTotal: function () {
-                console.log(store.getters.limit)
-                return Math.round(898/store.getters.limit)
+                console.log(store.getters.pokemons_list, 'estoyaqui')
+                console.log(store.getters.detailed_pokemon_list, 'querendote')
+                return Math.ceil(store.getters.list_total/store.getters.limit)
             }
         },
         mounted() {
@@ -245,6 +285,15 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+        .div-pagination{
+            .v-pagination{
+                li{
+                    .v-pagination__item--active{
+                        background-color: blue;
                     }
                 }
             }

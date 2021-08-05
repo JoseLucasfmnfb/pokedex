@@ -12,6 +12,7 @@ export default ({
         next: null,
         prev: null,
         search: '',
+        list_total: null,
 	},
 	mutations: {
 		// SET_STATUS(state, status) {
@@ -37,18 +38,23 @@ export default ({
         },
         SET_SEARCH(state, search){
             state.search = search
+        },
+        SET_LIST_TOTAL(state, list_total){
+            state.list_total = list_total
         }
 	},
 	actions: {
 		async getListaPokemons({ commit }, url = null) {
             if (!url) {
-                url = url_api_pokemon + 'pokemon?limit=898&offset=0'
+                url = url_api_pokemon + 'pokemon?limit=-1&offset=0'
             }
             var resp = await axios({
                 url: url,
                 method: 'GET'
             })
-            if (resp.status == 200) {                
+            if (resp.status == 200) {
+                console.log(resp.data.results.length, 'entrefuetos')
+                await commit('SET_LIST_TOTAL', resp.data.results.length)
                 await commit('SET_LISTA_POKEMONS', resp.data.results)
                 await commit('SET_PREV', resp.data.previous)
                 await commit('SET_NEXT', resp.data.next)
@@ -84,14 +90,18 @@ export default ({
         prev: (state) => state.prev,
         next: (state) => state.next,
         limit: (state) => state.limit,
+        list_total: (state) => state.list_total,
 		pokemons_list: (state) => {
             var pokemons = JSON.parse(JSON.stringify(state.pokemons_list))
-            console.log(state.search, "state.search")
+            console.log(pokemons, 'pokemons init')
             if (state.search) {
                 pokemons = pokemons.filter((pokemon)=>{
-                    console.log(pokemon.name.match(state.search), 'pokemon.name.match(/*char*/)')
                     return pokemon.name.match(state.search)
                 })
+                console.log(pokemons.length, 'ahogandome')
+                state.list_total = pokemons.length
+                console.log(state.list_total, 'asdasd')
+                // commit('SET_LIST_TOTAL', pokemons.length)
             }
             return pokemons.splice(state.offset, state.limit)
         },
