@@ -8,7 +8,7 @@
         <div class="conteudo">
             <div class="name">
                 <span>
-                    {{pokemon.id}}
+                    Nº{{(pokemon.id.toString().length == 1) ? '00'+pokemon.id : (pokemon.id.toString().length == 2) ? '0'+pokemon.id : pokemon.id}}
                 </span>
                 <h2>
                     {{pokemon.name}}

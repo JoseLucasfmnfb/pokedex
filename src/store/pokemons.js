@@ -104,7 +104,6 @@ export default ({
             if (resp.status == 200) {
                 await commit('SET_POKEMON_BY_TYPE', resp.data.pokemon)
             }
-            console.log(this.state.pokemons_list, 'vamoveoqtem')
             return resp.data
         },
         async setLimit({ commit }, limit){
@@ -150,16 +149,9 @@ export default ({
             }
             if (state.ordenacao == 'numeroDec') {
                 pokemons.reverse()
-                console.log(state.pokemons_by_type, 'asdasdasdas')
             }
             if (pokemons_by_type.length != 0) {
-                console.log(pokemons_by_type, 'state.pokemon_by_type')
-                console.log(pokemons, 'asasas')
-                // pokemons = pokemons.filter((x)=>{
-                // })
-                // pokemons = pokemons.filter(x => !pokemons_by_type.find(y => (y.name == x.name)));
                 pokemons = pokemons.filter(array => pokemons_by_type.some(filter => filter.pokemon.name === array.name));
-                console.log(pokemons, 'after filter by type')
             }
             if (state.search) {
                 pokemons = pokemons.filter((pokemon)=>{

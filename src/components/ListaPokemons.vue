@@ -3,10 +3,13 @@
         <v-container class="main-container">
             <v-row class="row-busca">
                 <v-col
-                    sm="4"
+                    sm="12"
+                    cols="12"
                     class="d-flex div-wrapper-types"
                 >
-                    <ul>
+                    <ul
+                        v-if="mostraFiltroTipo"
+                    >
                         <li
                             v-for="type in type_list"
                             :key="type.name"
@@ -16,10 +19,20 @@
                             {{type.name}}
                         </li>
                     </ul>
+                    <v-btn @click="mostraFiltroTipo = !mostraFiltroTipo">
+                        Mostrar filtro de tipo
+                        <svg style="width:24px;height:24px" viewBox="0 0 24 24" v-if="mostraFiltroTipo == false">
+                            <path fill="currentColor" d="M22,4V2H2V4H11V18.17L5.5,12.67L4.08,14.08L12,22L19.92,14.08L18.5,12.67L13,18.17V4H22Z" />
+                        </svg>
+                        <svg style="width:24px;height:24px" viewBox="0 0 24 24" v-if="mostraFiltroTipo == true">
+                            <path fill="currentColor" d="M4.08,11.92L12,4L19.92,11.92L18.5,13.33L13,7.83V22H11V7.83L5.5,13.33L4.08,11.92M12,4H22V2H2V4H12Z" />
+                        </svg>
+                    </v-btn>
                 </v-col>
                 <v-col
+                    md="6"
+                    sm="12"
                     cols="12"
-                    sm="4"
                     class="d-flex"
                 >
                     <v-text-field
@@ -37,8 +50,9 @@
                     </v-btn>
                 </v-col>
                 <v-col
+                    md="4"
+                    sm="6"
                     cols="12"
-                    sm="4"
                     class="div-btns-change-view-style d-flex"
                 >
                     <div class="wrapper-exibir">
@@ -173,6 +187,7 @@
             page: 1,
             qtdePerPage: 12,
             textOrdenacao: 'Numero ⭣',
+            mostraFiltroTipo: false,
             qtdeExibir: [
                 {
                     text: '12',
@@ -214,9 +229,7 @@
                 this.type_list = store.getters.type_list
             },
             async buscaPokemon(){
-                console.log(this.searchValue, 'olhaaqui')
                 if (this.searchValue) {
-                    console.log(this.searchValue, 'olhaaquiif')
                     await store.dispatch('setSearch', this.searchValue)
                     this.pokemon_list = await store.getters.pokemons_list
                 }else{
@@ -226,7 +239,6 @@
                 }
             },
             async atualizaLista(limit){
-                // console.log(limit, 'atualiza limite')
                 await store.dispatch('setLimit', limit)
                 this.init()
             },
@@ -240,12 +252,10 @@
                     await store.dispatch('setOrdenacao', ordenacao.value)
                     this.init()
                 }
-                console.log(ordenacao, 'ordenacao asdasdasdasd')
                 await store.dispatch('setOrdenacao', ordenacao.value)
                 this.init()
             },
             async filtraTipo(type){
-                console.log(type, 'tipo')
                 await store.dispatch('getPokemonsByType', type)
                 this.init()
             },
@@ -254,7 +264,6 @@
                 this.showModalPokemonInfo = true
             },
             handlePageChange(){
-                console.log(store.getters.limit, 'handlePageChange')
                 if (this.page == 1) {
                     store.dispatch('setLimit', store.getters.limit)
                     store.dispatch('setOffset', 0)
@@ -263,9 +272,6 @@
                     store.dispatch('setOffset', store.getters.limit*(this.page-1))
                 }
                 this.init()
-            },
-            logStore(){
-                console.log(this.$store.getters, 'this.$store.getters - logStore()')
             },
         },
         computed: {
@@ -289,10 +295,14 @@
             display: flex;
             justify-content: center;
             .div-wrapper-types{
+                background-color: #232c36;
+                border-radius: 5px;
                 ul{
                     display: flex;
                     flex-wrap: wrap;
                     list-style: none;
+                    justify-content: space-around;
+                    width: 100%;
                     .li-type{
                         border-radius: 5px;
                         margin: 0 5px 5px 0;
@@ -301,6 +311,14 @@
                         &.type-color-shadow{
                             display: none;
                         }
+                    }
+                }
+                button{
+                    border: none;
+                    box-shadow: none;
+                    width: 100%;
+                    svg{
+                        margin-left: 10px;
                     }
                 }
             }

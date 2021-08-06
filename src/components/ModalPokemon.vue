@@ -80,15 +80,12 @@
                 await this.getPokemonInfo()
             },
             async getPokemonInfo(){
-                // console.log(this.getter, 'getter no inicio da funcao')
                 this.showModal = await this.show
                 this.dados = store.getters.detailed_pokemon_list(this.name)
                 let elHtml = document.getElementsByTagName('html')[0]
                 if (this.modalAtiva == true) {
                     elHtml.style.overflowY = 'hidden'
                 }
-                // console.log(store.getters, 'store.getters ModalPokemon')
-                // console.log(this.dados, 'this.dados ModalPokemon')
             },
             async closeInfo(){
                 let elHtml = await document.getElementsByTagName('html')[0]
