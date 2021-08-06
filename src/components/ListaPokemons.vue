@@ -2,14 +2,24 @@
     <v-main id="ListaPokemons">
         <v-container class="main-container">
             <v-row class="row-busca">
-                <v-col>
-                    <v-btn @click="logStore()">
-                        Log Store {{page}}
-                    </v-btn>
+                <v-col
+                    sm="4"
+                    class="d-flex div-wrapper-types"
+                >
+                    <ul>
+                        <li
+                            v-for="type in type_list"
+                            :key="type.name"
+                            :class="'li-type type-color-' + type.name"
+                            @click="filtraTipo(type.url)"
+                        >
+                            {{type.name}}
+                        </li>
+                    </ul>
                 </v-col>
                 <v-col
                     cols="12"
-                    sm="6"
+                    sm="4"
                     class="d-flex"
                 >
                     <v-text-field
@@ -18,6 +28,7 @@
                         label="Digite o nome do pokemon que procura"
                         clearable
                         hide-details
+                        v-on:keyup.enter="buscaPokemon(searchValue)"
                     ></v-text-field>
                     <v-btn @click="buscaPokemon(searchValue)">
                         <svg style="width:24px;height:24px" viewBox="0 0 24 24">
@@ -27,8 +38,8 @@
                 </v-col>
                 <v-col
                     cols="12"
-                    sm="3"
-                    class="div-btns-change-view-style"
+                    sm="4"
+                    class="div-btns-change-view-style d-flex"
                 >
                     <div class="wrapper-exibir">
                         <v-menu
@@ -64,14 +75,15 @@
                                     v-bind="attrs"
                                     v-on="on"
                                 >
-                                    Ordenacao
+                                    {{textOrdenacao}}
                                 </v-btn>
                             </template>
                             <v-list>
                                 <v-list-item
                                     v-for="item in tipoOrdenacao"
+                                    v-model="textOrdenacao"
                                     :key="item.value"
-                                    @click="atualizaLista(item.value)"
+                                    @click="ordenaLista(item)"
                                 >
                                     <v-list-item-title>{{ item.text }}</v-list-item-title>
                                 </v-list-item>
@@ -96,7 +108,7 @@
                 <v-col md="12" class="div-lista-pokemons">
                     <ul>
                         <li 
-                            :class="'li-pokemon ' + liViewType" 
+                            :class="'li-pokemon ' + liViewType"
                             v-for="pokemon in pokemon_list" 
                             :key="pokemon.name" 
                             @click="openModal(pokemon.name)"
@@ -152,6 +164,7 @@
             img_: null,
             searchValue: '',
             pokemon_list: [],
+            type_list: [],
             pokemonUrl: '',
             liViewType: 'view-grid',
             pokemonInfo: null,
@@ -159,6 +172,7 @@
             pokemonName: '',
             page: 1,
             qtdePerPage: 12,
+            textOrdenacao: 'Numero ⭣',
             qtdeExibir: [
                 {
                     text: '12',
@@ -175,19 +189,19 @@
             ],
             tipoOrdenacao: [
                 {
-                    text: 'Numero Asc',
+                    text: 'Numero ⭣',
                     value: 'numeroAsc',
                 },
                 {
-                    text: 'Numero Dec',
+                    text: 'Numero ⭡',
                     value: 'numeroDec',
                 },
                 {
-                    text: 'Alfa Asc',
+                    text: 'Nome ⭣',
                     value: 'alfaAsc',
                 },
                 {
-                    text: 'Alfa Des',
+                    text: 'Nome ⭡',
                     value: 'alfaDes',
                 },
             ],
@@ -195,16 +209,44 @@
         methods: {
             async init(url = null) {
                 await store.dispatch('getListaPokemons', url)
+                await store.dispatch('getTypes')
                 this.pokemon_list = store.getters.pokemons_list
-                console.log(store.getters.pokemons_list ,'asdasdasdawsdasdawewdafrefae')
+                this.type_list = store.getters.type_list
             },
             async buscaPokemon(){
-                await store.dispatch('setSearch', this.searchValue)
-                this.pokemon_list = await store.getters.pokemons_list
+                console.log(this.searchValue, 'olhaaqui')
+                if (this.searchValue) {
+                    console.log(this.searchValue, 'olhaaquiif')
+                    await store.dispatch('setSearch', this.searchValue)
+                    this.pokemon_list = await store.getters.pokemons_list
+                }else{
+                    let clear = []
+                    await store.dispatch('setClear', clear)
+                    this.init()
+                }
             },
             async atualizaLista(limit){
                 // console.log(limit, 'atualiza limite')
                 await store.dispatch('setLimit', limit)
+                this.init()
+            },
+            async ordenaLista(ordenacao){
+                this.textOrdenacao = ordenacao.text
+                if (ordenacao.value == 'numeroAsc') {
+                    this.init()
+                }
+                if (ordenacao.value == 'numeroDec') {
+                    await this.init()
+                    await store.dispatch('setOrdenacao', ordenacao.value)
+                    this.init()
+                }
+                console.log(ordenacao, 'ordenacao asdasdasdasd')
+                await store.dispatch('setOrdenacao', ordenacao.value)
+                this.init()
+            },
+            async filtraTipo(type){
+                console.log(type, 'tipo')
+                await store.dispatch('getPokemonsByType', type)
                 this.init()
             },
             async openModal(name){
@@ -228,8 +270,6 @@
         },
         computed: {
             pageTotal: function () {
-                console.log(store.getters.pokemons_list, 'estoyaqui')
-                console.log(store.getters.detailed_pokemon_list, 'querendote')
                 return Math.ceil(store.getters.list_total/store.getters.limit)
             }
         },
@@ -248,16 +288,56 @@
         .row-busca{
             display: flex;
             justify-content: center;
+            .div-wrapper-types{
+                ul{
+                    display: flex;
+                    flex-wrap: wrap;
+                    list-style: none;
+                    .li-type{
+                        border-radius: 5px;
+                        margin: 0 5px 5px 0;
+                        padding: 5px 8px;
+                        &.type-color-unknown,
+                        &.type-color-shadow{
+                            display: none;
+                        }
+                    }
+                }
+            }
+            .d-flex{
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                button{
+                    min-height: 48px;
+                    background-color: #232c36;
+                    color: #fff;
+                }
+            }
             .div-btns-change-view-style{
                 display: flex;
                 flex-wrap: wrap;
-                justify-content: center;
+                justify-content: space-around;
                 align-items: center;
                 text-align: center;
                 .wrapper-exibir{
+                    display: flex;
+                    justify-content: space-around;
+                    /* width: 100%; */
+                    flex: 2;
                     .v-menu{
                         display: block;
                     }
+                }
+                .wrapper-list-style-change{
+                    flex: 1;
+                    display: flex;
+                    justify-content: space-around;
+                }
+                button{
+                    min-width: auto;
+                    padding: 0 12px;
+                    min-height: 48px;
                 }
             }
         }
@@ -269,10 +349,13 @@
                     list-style: none;
                     li{
                         padding: 10px;
-                        min-width: 270px;
+                        // min-width: 270px;
                         display: flex;
                         &.view-grid{
                             width: 25%;
+                            @media (max-width: $sm){
+                                width: 50%;
+                            }
                         }
                         &.view-list{
                             width: 100%;
@@ -282,6 +365,13 @@
                                 .image{
                                     width: 20%;
                                     margin-right: 10px;
+                                    @media (max-width: $sm){
+                                        width: 100%;
+                                        margin-right: 0;
+                                    }
+                                }
+                                @media (max-width: $sm){
+                                    flex-direction: column;
                                 }
                             }
                         }
@@ -293,7 +383,7 @@
             .v-pagination{
                 li{
                     .v-pagination__item--active{
-                        background-color: blue;
+                        background-color: #232c36;
                     }
                 }
             }

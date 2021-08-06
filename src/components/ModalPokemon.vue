@@ -2,7 +2,7 @@
     <v-row justify="center" v-if="showModal">
         <v-dialog
             v-model="showModal"
-            max-width="80%"
+            margin="0"
             id="modalPokemon"
         >
             <v-card>
@@ -107,7 +107,7 @@
     }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
     #modalPokemon{
         display: flex;
         .v-dialog__content{
@@ -115,6 +115,7 @@
                 background-color: #00000099;
             }
             .v-dialog{
+                max-width: 80%;
                 .v-card{
                     .v-card__actions{
                         justify-content: flex-end;
@@ -167,12 +168,19 @@
                                 display: flex;
                                 justify-content: space-between;
                                 padding: 5px;
+                                @media (max-width: $md){
+                                    min-width: 155px;
+                                    font-size: 14px;
+                                }
                             }
                             .wrapper-statsBar{
                                 width: 255px;
                                 display: flex;
                                 margin-left: 5px;
                                 padding: 2px;
+                                @media (max-width: 1350px){
+                                    width: 100%;
+                                }
                             }
                             &.li-stats-hp{
                                 h3{
@@ -248,6 +256,13 @@
                             }
                         }
                     }
+                    @media (max-width: $xs){
+                        padding: 0 10px 20px;
+                    }
+                }
+                @media (max-width: $xs){
+                    max-width: 95%!important;
+                    margin: 0!important;
                 }
             }
         }

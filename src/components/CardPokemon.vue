@@ -36,7 +36,6 @@
             init(){
                 store.dispatch('getPokemon', this.url).then(async () => {
                     this.pokemon = await store.getters.detailed_pokemon_list(this.name)
-                    // console.log(this.pokemon, 'estoyaqui')
                 })
             }
         },
@@ -76,9 +75,17 @@
                     width: 80%;
                 }
             }
+            @media (max-width: $sm){
+                min-height: 168px;
+            }
         }
         .name{
             padding: 12px 0;
+            h2{
+                @media (max-width: $sm){
+                    font-size: 16px;
+                }
+            }
         }
         .types{
             width: 100%;
@@ -93,6 +100,10 @@
                 justify-content: center;
                 padding: 5px 10px;
                 border-radius: 5px;
+                @media (max-width: $sm){
+                    padding: 5px;
+                    margin: 0 2px;
+                }
             }
         }
         &:hover{
