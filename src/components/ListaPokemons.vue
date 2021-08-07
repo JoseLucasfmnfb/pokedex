@@ -170,6 +170,14 @@
                 showModalPokemonInfo = false
             }"
         />
+        <ModalMessage
+            v-if="showModalMessage"
+            :show="showModalMessage"
+            @hadleCloseMessage="()=>{
+                showModalMessage = false
+                clear()
+            }"
+        />
     </v-main>
 </template>
 
@@ -177,12 +185,14 @@
     import store from "@/store"
     import ModalPokemon from '@/components/ModalPokemon.vue';
     import CardPokemon from '@/components/CardPokemon.vue';
+    import ModalMessage from '@/components/ModalMessage.vue';
 
     export default {
         name: "ListaPokemons",
         components: {
             ModalPokemon,
             CardPokemon,
+            ModalMessage
         },
         data: () => ({
             type_selected: '',
@@ -196,6 +206,7 @@
             page: 1,
             textOrdenacao: 'Numero ↓',
             mostraFiltroTipo: false,
+            showModalMessage: false,
             qtdeExibir: [
                 {
                     text: '12',
@@ -231,7 +242,6 @@
         }),
         methods: {
             async init(url = null) {
-                console.log('clicked')
                 await store.dispatch('getListaPokemons', url)
                 await store.dispatch('getTypes')
                 this.pokemon_list = store.getters.pokemons_list
@@ -241,11 +251,12 @@
                 if (this.searchValue) {
                     await store.dispatch('setSearch', this.searchValue.toLowerCase())
                     this.pokemon_list = await store.getters.pokemons_list
-                    console.log(this.searchValue, 'if')
+                    if (this.pokemon_list.length == 0) {
+                        this.showModalMessage = await true
+                    }
                 }else{
                     await store.dispatch('setClear')
                     this.init()
-                    console.log(this.searchValue, 'else')
                 }
                 this.page = await 1
                 this.handlePageChange()
@@ -331,6 +342,7 @@
                         opacity: 0.5;
                         transition: all ease .3s;
                         cursor: pointer;
+                        color: #fff;
                         &.type-color-fairy{
                             margin-right: 0;
                         }
@@ -357,7 +369,7 @@
             }
             .d-flex{
                 display: flex;
-                align-items: center;
+                align-items: flex-end;
                 flex-wrap: wrap;
                 .v-input__slot{
                     .v-input__append-inner{
@@ -379,7 +391,7 @@
                 display: flex;
                 flex-wrap: wrap;
                 justify-content: space-around;
-                align-items: center;
+                align-items: flex-end;
                 text-align: center;
                 .wrapper-exibir{
                     display: flex;
@@ -394,6 +406,9 @@
                         font-size: 18px;
                         font-weight: 700;
                         color: #000;
+                        button{
+                            margin-left: 5px;
+                        }
                         .v-menu{
                             display: block;
                         }
@@ -431,6 +446,7 @@
                     display: flex;
                     flex-wrap: wrap;
                     list-style: none;
+                    margin: 0 -10px;
                     li{
                         padding: 10px;
                         // min-width: 270px;
