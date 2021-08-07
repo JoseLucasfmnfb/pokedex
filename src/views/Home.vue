@@ -58,7 +58,8 @@
         background-position: center;
         background-repeat: no-repeat;
         background-size: cover;
-        height: auto;
+        background-attachment: fixed;
+        height: 100%;
         min-height: 100vh;
         padding: 20px 0!important;
         .logo{
