@@ -13,8 +13,8 @@
                         <li
                             v-for="type in type_list"
                             :key="type.name"
-                            :class="'li-type type-color-' + type.name"
-                            @click="filtraTipo(type.url)"
+                            :class="[('li-type type-color-' + type.name), ((type.name == $store.getters.type_selected) ? 'ativo' : '')]"
+                            @click="filtraTipo(type.url, type.name)"
                         >
                             {{type.name}}
                         </li>
@@ -50,61 +50,72 @@
                     </v-btn>
                 </v-col>
                 <v-col
-                    md="4"
-                    sm="6"
+                    md="6"
+                    sm="12"
                     cols="12"
                     class="div-btns-change-view-style d-flex"
                 >
                     <div class="wrapper-exibir">
-                        <v-menu
-                            bottom
-                            offset-y
-                        >
-                            <template v-slot:activator="{ on, attrs }">
-                                <v-btn
-                                    class="ma-2"
-                                    v-bind="attrs"
-                                    v-on="on"
-                                >
-                                    {{$store.getters.limit}}
-                                </v-btn>
-                            </template>
-                            <v-list>
-                                <v-list-item
-                                    v-for="item in qtdeExibir"
-                                    :key="item.value"
-                                    @click="atualizaLista(item.value)"
-                                >
-                                    <v-list-item-title>{{ item.text }}</v-list-item-title>
-                                </v-list-item>
-                            </v-list>
-                        </v-menu>
-                        <v-menu
-                            bottom
-                            offset-y
-                        >
-                            <template v-slot:activator="{ on, attrs }">
-                                <v-btn
-                                    class="ma-2"
-                                    v-bind="attrs"
-                                    v-on="on"
-                                >
-                                    {{textOrdenacao}}
-                                </v-btn>
-                            </template>
-                            <v-list>
-                                <v-list-item
-                                    v-for="item in tipoOrdenacao"
-                                    v-model="textOrdenacao"
-                                    :key="item.value"
-                                    @click="ordenaLista(item)"
-                                >
-                                    <v-list-item-title>{{ item.text }}</v-list-item-title>
-                                </v-list-item>
-                            </v-list>
-                        </v-menu>
+                        <div class="inner-wrapper exibicao">
+                            Exibição: 
+                            <v-menu
+                                bottom
+                                offset-y
+                            >
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-btn
+                                        class="ma-2"
+                                        v-bind="attrs"
+                                        v-on="on"
+                                    >
+                                        {{$store.getters.limit}}
+                                    </v-btn>
+                                </template>
+                                <v-list>
+                                    <v-list-item
+                                        v-for="item in qtdeExibir"
+                                        :key="item.value"
+                                        @click="atualizaLista(item.value)"
+                                    >
+                                        <v-list-item-title>{{ item.text }}</v-list-item-title>
+                                    </v-list-item>
+                                </v-list>
+                            </v-menu>
+                        </div>
+                        <div class="inner-wrapper ordenacao">
+                            Ordenação: 
+                            <v-menu
+                                bottom
+                                offset-y
+                            >
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-btn
+                                        class="ma-2"
+                                        v-bind="attrs"
+                                        v-on="on"
+                                    >
+                                        {{textOrdenacao}}
+                                    </v-btn>
+                                </template>
+                                <v-list>
+                                    <v-list-item
+                                        v-for="item in tipoOrdenacao"
+                                        v-model="textOrdenacao"
+                                        :key="item.value"
+                                        @click="ordenaLista(item)"
+                                    >
+                                        <v-list-item-title>{{ item.text }}</v-list-item-title>
+                                    </v-list-item>
+                                </v-list>
+                            </v-menu>
+                        </div>
                     </div>
                     <div class="wrapper-list-style-change">
+                        <div class="wrapper-limpar">
+                            <v-btn @click="clear()">
+                                Limpar
+                            </v-btn>
+                        </div>
                         <v-btn @click="liViewType = 'view-grid'">
                             <svg style="width:24px;height:24px" viewBox="0 0 24 24">
                                 <path fill="currentColor" d="M3,11H11V3H3M3,21H11V13H3M13,21H21V13H13M13,3V11H21V3" />
@@ -174,19 +185,16 @@
             CardPokemon,
         },
         data: () => ({
-            msg: null,
-            img_: null,
+            type_selected: '',
             searchValue: '',
             pokemon_list: [],
             type_list: [],
-            pokemonUrl: '',
             liViewType: 'view-grid',
             pokemonInfo: null,
             showModalPokemonInfo: false,
             pokemonName: '',
             page: 1,
-            qtdePerPage: 12,
-            textOrdenacao: 'Numero ⭣',
+            textOrdenacao: 'Numero ↓',
             mostraFiltroTipo: false,
             qtdeExibir: [
                 {
@@ -204,25 +212,26 @@
             ],
             tipoOrdenacao: [
                 {
-                    text: 'Numero ⭣',
+                    text: 'Numero ↓',
                     value: 'numeroAsc',
                 },
                 {
-                    text: 'Numero ⭡',
+                    text: 'Numero ↑',
                     value: 'numeroDec',
                 },
                 {
-                    text: 'Nome ⭣',
+                    text: 'Nome ↓',
                     value: 'alfaAsc',
                 },
                 {
-                    text: 'Nome ⭡',
+                    text: 'Nome ↑',
                     value: 'alfaDes',
                 },
             ],
         }),
         methods: {
             async init(url = null) {
+                console.log('clicked')
                 await store.dispatch('getListaPokemons', url)
                 await store.dispatch('getTypes')
                 this.pokemon_list = store.getters.pokemons_list
@@ -230,13 +239,16 @@
             },
             async buscaPokemon(){
                 if (this.searchValue) {
-                    await store.dispatch('setSearch', this.searchValue)
+                    await store.dispatch('setSearch', this.searchValue.toLowerCase())
                     this.pokemon_list = await store.getters.pokemons_list
+                    console.log(this.searchValue, 'if')
                 }else{
-                    let clear = []
-                    await store.dispatch('setClear', clear)
+                    await store.dispatch('setClear')
                     this.init()
+                    console.log(this.searchValue, 'else')
                 }
+                this.page = await 1
+                this.handlePageChange()
             },
             async atualizaLista(limit){
                 await store.dispatch('setLimit', limit)
@@ -255,9 +267,13 @@
                 await store.dispatch('setOrdenacao', ordenacao.value)
                 this.init()
             },
-            async filtraTipo(type){
+            async filtraTipo(type, nome){
                 await store.dispatch('getPokemonsByType', type)
-                this.init()
+                await store.dispatch('setTypeFilter', nome)
+                this.type_selected = await nome
+                await this.init()
+                this.page = await 1
+                this.handlePageChange()
             },
             async openModal(name){
                 this.pokemonName = await name
@@ -273,6 +289,10 @@
                 }
                 this.init()
             },
+            async clear(){
+                await store.dispatch('setClear')
+                this.init()
+            }
         },
         computed: {
             pageTotal: function () {
@@ -307,9 +327,22 @@
                         border-radius: 5px;
                         margin: 0 5px 5px 0;
                         padding: 5px 8px;
+                        text-transform: capitalize;
+                        opacity: 0.5;
+                        transition: all ease .3s;
+                        cursor: pointer;
+                        &.type-color-fairy{
+                            margin-right: 0;
+                        }
+                        &:hover{
+                            opacity: 1;
+                        }
                         &.type-color-unknown,
                         &.type-color-shadow{
                             display: none;
+                        }
+                        &.ativo{
+                            opacity: 1;
                         }
                     }
                 }
@@ -326,6 +359,16 @@
                 display: flex;
                 align-items: center;
                 flex-wrap: wrap;
+                .v-input__slot{
+                    .v-input__append-inner{
+                        button{
+                            min-height: auto;
+                            border-radius: 100%;
+                            padding: 5px;
+                            background-color: red;
+                        }
+                    }
+                }
                 button{
                     min-height: 48px;
                     background-color: #232c36;
@@ -341,21 +384,44 @@
                 .wrapper-exibir{
                     display: flex;
                     justify-content: space-around;
-                    /* width: 100%; */
                     flex: 2;
-                    .v-menu{
-                        display: block;
+                    .inner-wrapper{
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: center;
+                        align-items: center;
+                        text-align: center;
+                        font-size: 18px;
+                        font-weight: 700;
+                        color: #000;
+                        .v-menu{
+                            display: block;
+                        }
+                    }
+                    @media (max-width: $xs){
+                        width: 100%;
                     }
                 }
                 .wrapper-list-style-change{
                     flex: 1;
                     display: flex;
                     justify-content: space-around;
+                    @media (max-width: $xs){
+                        margin-bottom: 15px;
+                        width: 100%;
+                        justify-content: flex-end;
+                        button{
+                            margin-left: 10px;
+                        }
+                    }
                 }
                 button{
                     min-width: auto;
                     padding: 0 12px;
                     min-height: 48px;
+                }
+                @media (max-width: $xs){
+                    flex-direction: column-reverse;
                 }
             }
         }
@@ -369,6 +435,7 @@
                         padding: 10px;
                         // min-width: 270px;
                         display: flex;
+                        cursor: pointer;
                         &.view-grid{
                             width: 25%;
                             @media (max-width: $sm){

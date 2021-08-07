@@ -16,7 +16,7 @@ export default ({
         list_total: null,
         ordenacao: null,
         type_list: null,
-        type: null,
+        type_selected: null,
 	},
 	mutations: {
 		// SET_STATUS(state, status) {
@@ -52,8 +52,8 @@ export default ({
         SET_ORDENACAO(state, ordenacao){
             state.ordenacao = ordenacao
         },
-        SET_TYPE(state, type){
-            state.type = type
+        SET_TYPE(state, type_selected){
+            state.type_selected = type_selected
         },
         SET_POKEMON_BY_TYPE(state, pokemon_by_type){
             state.pokemon_by_type = pokemon_by_type
@@ -122,18 +122,42 @@ export default ({
             commit('SET_ORDENACAO', ordenacao)
             return true
         },
-        async setTypeFilter({ commit }, type){
-            commit('SET_TYPE', type)
+        async setTypeFilter({ commit }, type_selected){
+            commit('SET_TYPE', type_selected)
             return true
         },
-        async setClear({ commit }, clear){
-            await commit('SET_POKEMON_BY_TYPE', clear)
+        async setClear({ commit }){
+            let clear_pokemons_list = []
+            let clear_pokemon_by_type = []
+            let clear_detailed_pokemon_list = {}
+            let clear_limit = 12
+            let clear_offset = 0
+            let clear_next = null
+            let clear_prev = null
+            let clear_search = ''
+            let clear_list_total = null
+            let clear_ordenacao = null
+            let clear_type_list = null
+            let clear_type = null
+            commit('SET_LISTA_POKEMONS', clear_pokemons_list)
+            commit('SET_INFO_POKEMON', clear_detailed_pokemon_list)
+            commit('SET_LIST_TYPE', clear_type_list)
+            commit('SET_LIMIT', clear_limit)
+            commit('SET_OFFSET', clear_offset)
+            commit('SET_PREV', clear_next)
+            commit('SET_NEXT', clear_prev)
+            commit('SET_SEARCH', clear_search)
+            commit('SET_LIST_TOTAL', clear_list_total)
+            commit('SET_ORDENACAO', clear_ordenacao)
+            commit('SET_TYPE', clear_type)
+            await commit('SET_POKEMON_BY_TYPE', clear_pokemon_by_type)
             return true
         }
 	},
 	modules: {
 	},
 	getters: {
+        type_selected: (state) => state.type_selected,
         prev: (state) => state.prev,
         next: (state) => state.next,
         limit: (state) => state.limit,
