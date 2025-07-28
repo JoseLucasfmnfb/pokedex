@@ -1,24 +1,17 @@
 # pokedex
 
-## Project setup
-```
-npm install
-```
+Projeto de sistema de listagem de pokemons "Pokedex" usando **Vue.js** consumo de API REST.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+---
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## 🌐 Projeto Online
 
-### Lints and fixes files
-```
-npm run lint
-```
+🔗 O projeto pode ser acessado em: [https://huggychat.netlify.app](teste-pokedex.netlify.app)
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+---
+
+## 🚀 Como iniciar
+
+Após clonar o repositório, use o comando `npm install` para instalar as dependências.
+
+Depois é só usar o comando `npm run dev` e a aplicação estará disponivel em http://localhost:3000
